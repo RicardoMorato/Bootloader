@@ -33,7 +33,7 @@ endl:                  ; Pula uma linha, printando na tela o caractere que repre
   call putchar
   ret
 
-reverse:               ; mov si, string , pega a string apontada por si e a reverte
+reverse:               ; mov si, string, pega a string apontada por si e a reverte
   mov di, si
   xor cx, cx           ; zerar contador
   .loop1:              ; botar string na stack
@@ -132,7 +132,7 @@ tostring:              ; mov ax, int / mov di, string, transforma o valor em ax 
     ret
 
 clear:                 ; mov bl, color
-                       ; set the cursor to top left-most corner of screen
+                       ; seta o cursor para o canto superior esquerdo da tela
   mov dx, 0
   mov bh, 0
   mov ah, 0x2
@@ -145,7 +145,7 @@ clear:                 ; mov bl, color
   mov ah, 0x9
   int 0x10
 
-  ; reset cursor to top left-most corner of screen
+  ; reseta o cursor para o canto superior esquerdo da tela
   mov dx, 0
   mov bh, 0
   mov ah, 0x2
