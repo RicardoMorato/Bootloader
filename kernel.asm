@@ -2,209 +2,305 @@ org 0x7e00
 jmp 0x0000:start
 
 data:
-    mensagem db 'Informe o valor de X entre 1 e 1000',0
-    string times 20 db 0
-    X times 10 db 0
-    valor times 10 db 0
+    tip1 db 'Eu dizer, malandro voce eh tosquinho, voce nao entende', 0
+    tip2 db '  ISSO NA QUINTA SERIE PRIMARIA, JA DARIA PRA ENTENDER', 0
+    tip3 db '    SE NAO O NEGO CAGA NA SUA CABECA, E VOCE NAO REAGE', 0
+    tip db 'Dica ',0
+    options1 db '(1) Responder      (2) Proxima dica' , 0
+    options2 db '           (1) Responder' , 0
+    msg db 'Digite a resposta: ', 0
+    correct db 'Parabens! Voce tem brio ;)', 0
+    wrong db 'Voce nao entende :/', 0
+    str1 times 5 db 0
+    str2 db 'brio',0
+    flag db 0
 
-putchar:                 ; Printa um caractere na tela, pega o valor salvo em al
-  mov ah, 0x0e
-  int 10h
-  ret
+clear:
+    push bp
+    mov bp, sp
+    pusha
 
-getchar:                 ; Pega o caractere lido no teclado e salva em al
-  mov ah, 0x00
-  int 16h
-  ret
+    mov ah, 0x07
+    mov bh, [bp+4]      
+    mov al, 0x00               
+    mov cx, 0x00        
+    mov dh, 0x18        
+    mov dl, 0x4f        
+    int 0x10
 
-delchar:                 ; Deleta um caractere lido no teclado
-  mov al, 0x08           ; backspace
-  call putchar
-  mov al, ' '
-  call putchar
-  mov al, 0x08           ; backspace
-  call putchar
-  ret
+    push word[bp+6]   
+    call movecursor
+    add sp, 2
 
-endl:                    ; Pula uma linha, printando na tela o caractere que representa o /n
-  mov al, 0x0a           ; line feed
-  call putchar
-  mov al, 0x0d           ; carriage return
-  call putchar
-  ret
+    popa
+    mov sp, bp
+    pop bp
+    ret
 
-reverse:                 ; mov si, string, pega a string apontada por si e a reverte
-  mov di, si
-  xor cx, cx             ; zerar contador
-  .loop1:                ; botar string na stack
-    lodsb
-    cmp al, 0
-    je .endloop1
-    inc cl
-    push ax
-    jmp .loop1
-  .endloop1:
-  .loop2:                ; remover string da stack
-    pop ax
-    stosb
-    loop .loop2
-  ret
+movecursor:
+    push bp
+    mov bp, sp
+    pusha
 
-gets:                    ; mov di, string, salva na string apontada por di, cada caractere lido na linha
-  xor cx, cx             ; zerar contador
-  .loop1:
+    mov dx, [bp+4]      
+    mov ah, 02h         
+    mov bh, 0           
+    int 10h
+
+    popa
+    mov sp, bp
+    pop bp
+    ret
+
+putchar:
+    mov ah, 0x0e
+    mov bh, 0
+    int 0x10
+    ret
+
+endl:
+    mov al, 0x0a
+    call putchar
+    mov al, 0x0d
+    call putchar
+    ret
+
+getchar:
+    mov ah, 0x00
+    int 16h
+    ret
+
+print:
+    push bp
+    mov bp, sp
+    pusha
+
+    mov si, [bp+4]
+print_loop:
+    lodsb 
+    or al, 0
+    je .end_print          
+    call putchar           
+    jmp print_loop       
+.end_print:
+    popa
+    mov sp, bp
+    pop bp
+    ret
+
+input:
+    push bp
+    mov bp, sp
+    pusha
+
+    mov cl, [bp+4]
+    mov di, [bp+6]
+input_loop:
+    or cl, 0
+    jz .end_input
     call getchar
-    cmp al, 0x08         ; backspace
-    je .backspace
-    cmp al, 0x0d         ; carriage return
-    je .done
-    cmp cl, 10           ; string limit checker
-    je .loop1
+    cmp al, 0x0d
+    je .end_input
+    mov byte[di], al
+    call putchar
+    inc di
+    dec cl
+    jmp input_loop
+.end_input:
+    popa
+    mov sp, bp
+    pop bp
+    ret
 
-    stosb
-    inc cl
+strcmp:
+    push bp
+    mov bp, sp
+    pusha
+
+    mov cl, [bp+4]
+    mov si, [bp+6]
+    mov di, [bp+8]
+cmp_loop:
+    or cl, 0 
+    jz .end
+    mov bl, byte[di]
+    lodsb
+    or al, bl
+    jz .end_equal
+    cmp al, bl
+    jne .end
+    inc di
+    dec cl
+    jmp cmp_loop
+.end_equal:
+    mov al, 1
+    mov byte[flag], al
+.end:
+    popa
+    mov sp, bp
+    pop bp
+    ret
+
+tip_top:
+    push bp
+    mov bp, sp
+    pusha
+
+    push 0x0c10
+    push 0x70        
+    call clear
+    add sp, 4
+
+    push 0x0423
+    call movecursor
+    add sp, 2
+
+    push tip
+    call print
+    add sp, 2
+
+    mov al, [bp+4]
     call putchar
 
-    jmp .loop1
-    .backspace:
-      cmp cl, 0          ; is empty?
-      je .loop1
-      dec di
-      dec cl
-      mov byte[di], 0
-      call delchar
-    jmp .loop1
-  .done:
-  mov al, 0
-  stosb
-  call endl
-  ret
-
-strcmp:                  ; mov si, string1, mov di, string2, compara as strings apontadas por si e di
-  .loop1:
-    lodsb
-    cmp al, byte[di]
-    jne .notequal
-    cmp al, 0
-    je .equal
-    inc di
-    jmp .loop1
-  .notequal:
-    clc
-    ret
-  .equal:
-    stc
+    popa
+    mov sp, bp
+    pop bp
     ret
 
-tostring:                ; mov ax, int / mov di, string, transforma o valor em ax em uma string e salva no endereço apontado por di
-    push di
-    .loop1:
-        cmp ax, 0
-        je .endloop1
-        xor dx, dx
-        mov bx, 10
-        div bx           ; ax = 9999 -> ax = 999, dx = 9
-        xchg ax, dx      ; swap ax, dx
-        add ax, 48       ; 9 + '0' = '9'
-        stosb
-        xchg ax, dx
-        jmp .loop1
-    .endloop1:
-    pop si
-    cmp si, di
-    jne .done
-    mov al, 48
-    stosb
-    .done:
-    mov al, 0
-    stosb
-    call reverse
+
+set_option:
+    push bp
+    mov bp, sp
+    pusha
+
+    loop:
+        call getchar
+        push ax
+        cmp al, '1'
+        je ans
+        pop ax
+        push ax
+        cmp al, '2'
+        je end_loop
+        pop ax
+        jmp loop
+    end_loop:
+        pop ax
+        jmp set_done
+    ans:
+        pop ax
+    
+        push 0x0a0d
+        push 0x70        
+        call clear
+        add sp, 4
+
+        push msg
+        call print
+        add sp, 2
+
+        push str1
+        push 5
+        call input
+        add sp, 4
+
+        push str1
+        push str2
+        push 5
+        call strcmp
+        add sp, 6
+
+        mov al, [flag]
+        cmp al, 0
+        je wrong_ans
+
+        push 0x0a1a
+        push 0x27        
+        call clear
+        add sp, 4
+
+        push correct
+        call print
+        add sp, 2
+        jmp done
+
+        wrong_ans:
+            push 0x0a1c
+            push 0x40        
+            call clear
+            add sp, 4
+
+            push wrong
+            call print
+            add sp, 2
+            jmp done
+
+set_done:
+    popa
+    mov sp, bp
+    pop bp
     ret
 
-  prints:                ; mov si, string
-    .loop:
-        lodsb            ; bota character apontado por si em al
-        cmp al, 0        ; 0 é o valor atribuido ao final de uma string
-        je .endloop      ; Se for o final da string, acaba o loop
-        call putchar     ; printa o caractere
-        jmp .loop        ; volta para o inicio do loop
-    .endloop:
+
+defaul_screen:
+    push bp
+    mov bp, sp
+    pusha
+
+    push word[bp+4]
+    call tip_top
+    add sp, 2
+
+    push 0x0a0d
+    call movecursor
+    add sp, 2
+
+    push word[bp+6]
+    call print
+    add sp, 2
+
+    push 0x1013
+    call movecursor
+    add sp, 2
+    
+    
+    push word[bp+8]
+    call print
+    add sp, 2
+
+    popa
+    mov sp, bp
+    pop bp
     ret
-
-clear:                   ; mov bl, color
-                         ; seta o cursor para o canto superior esquerdo da tela
-  mov dx, 0
-  mov bh, 0
-  mov ah, 0x2
-  int 0x10
-
-  ; print 2000 blank chars to clean
-  mov cx, 2000
-  mov bh, 0
-  mov al, 0x20           ; blank char
-  mov ah, 0x9
-  int 0x10
-
-  ; reseta o cursor para o canto superior esquerdo da tela
-  mov dx, 0
-  mov bh, 0
-  mov ah, 0x2
-  int 0x10
-  ret
-
+    
 start:
-
-    xor ax, ax           ; limpando ax
-    mov ds, ax           ; limpando ds
-    mov es, ax           ; limpando es
-
-                         ; limpando a tela, em bl fica o valor da cor que vai ser utilizada na tela, 15 é o valor branco, outras cores disponíveis no tutorial
-
-    mov bl, 15
+    push 0x0c10
+    push 0x70        ; 0xbl, b = cor do background, l = cor da letra
     call clear
+    add sp, 4
 
-    ; Imprimindo na tela a mensagem declarada em data
-    mov si, mensagem     ; si aponta para o começo do endereço onde está mensagem
-    call prints          ; Como só é impresso um caractere por vez, pegamos uma string com N caracteres e printamos um por um em ordem até chegar ao caractere de valor 0 que é o fim da string, assim prints pega a string para qual o ponteiro si aponta e a imprime na tela até o seu final
-    call endl            ; Pula uma linha, assim o próximo caractere imprimido estará na linha de baixo
+    push options1
+    push tip1
+    push '1'
+    call defaul_screen
+    add sp, 6
 
-                         ; lendo o valor de X
-    mov di, X            ; di aponta para o começo do endereço onde está X
-    call gets            ; Como só é lido um caractere por vez, caso X seja um número com 2 ou mais casas decimais, a forma mais eficiente de salvar esse número é em forma de string, assim a gets salva no endereço apontado por di cada caractere lido do teclado até o enter
-    call endl
+    call set_option
 
-    ; Printando os valores de 1 até X
-    xor ax,ax
-    xor cx,cx
-    mov ax,1
-    push ax              ; Salvando o valor inicial de ax na pilha
-    .printando:          ; Forma de declarar uma label dentro de outra, colocar um "."antes da declaração
+    push options1
+    push tip2
+    push '2'
+    call defaul_screen
+    add sp, 6
 
-                         ; Trasformando o valor atual em uma string para exibir
-        mov di, valor
-        call tostring    ; Pega o valor em ax e salva em forma de string no endereço apontado por di, como em asm só printamos 1 caractere por vez, para printar um número com 2 ou mais casas decimais é preciso converter ele em uma string e printar casa por casa em ordem e assim representar o número desejado
+    call set_option
 
-                         ; Exibindo valor atual
-        mov si, valor
-        call prints
-        call endl
+    push options2
+    push tip3
+    push '3'
+    call defaul_screen
+    add sp, 6
 
-        ; Verificando se o valor atual chegou em X, caso não tenha, continua o loop
-        mov si, X
-        mov di, valor
-        call strcmp      ; Compara as strings apontadas por si e di, retornando se são iguais ou não, assim sabemos se o valor atual é igual ao valor de X
-
-        je .end          ; Se as strings são iguais, pula para label .end
-
-                         ; Adicionando 1 ao valor atual para continuar a exibição
-        xor ax,ax
-        pop ax           ; Tira da pilha o valor de ax
-        add ax,1         ; ax = ax+1
-        push ax          ; Salva na pilha o valor novo de ax
-        jmp .printando   ; Volta para .printando
-
-    .end:
-    jmp done
-
+    call set_option
 done:
     jmp $
