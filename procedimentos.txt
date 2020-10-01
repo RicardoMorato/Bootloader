@@ -1,0 +1,88 @@
+getchar
+    função: 
+        coloca em al o valor da tecla pressionada do teclado
+
+
+putchar
+    função:
+        imprime na tela o byte que está armazenado em al
+    exemplo de uso:
+        mov al, '0'
+        call putchar
+
+
+endl
+    função:
+        faz a quebra de linha, o cursor va ficar no inicio da próxima linha
+
+
+print
+    função:
+        imprime na tela a string armazenada em uma variável parâmetro str
+    uso:
+        push str   ; vai colocar na pilha o edereço armazenado em str(a primmeira posição da string)
+        call print
+        add sp, 2  ;remove da pilha o endereço (endereços tem 2 bytes de tamanho)
+
+
+movecursor
+    função:
+        move o cursor para a coluna cC e linha lL(cC e lL são bytes arbitrários)
+    uso:
+        push 0xlLcC
+        call movecursor
+        add sp, 2
+
+clear
+    função:
+        limpa a tela, seta a cor b para o background e l para a letra, coloca o cursor na linha
+        lL e coluna cC
+    uso:
+        push 0xlLcC ; parâmetros para o movecursor interno a clear
+        push 0xbl   ; b é a cor do background e l é a cor da letra
+        call clear
+        add sp, 4   
+        
+        obs.: a pilha só insere uma quantidades pares maiores que 0 de bytes, quando fizemos
+        push 0xbl, o que inserimos foi 0x00bl por isso removemos 4 bytes da pilha
+
+
+str_cmp
+    função:
+        compara os N primeiros caracteres de duas variaveis strings str1 e str2
+        seta o valor de uma variável flag como um, do contrário seta como 0
+    uso:
+        push str1
+        push str2
+        push N
+        call str_cmp
+        add sp, 6
+
+
+
+tip_top
+    função:
+        imprimir a string do top da tela de dica com o número N da dica
+    uso:
+        push 'N'
+        call tip_top
+        add sp, 2
+
+
+default_screen
+    função:
+        imprime a tela default com o número 'N' da dica, a string da dica atual e as opções
+    uso:
+        push options ; string das opções
+        push tip     ; string da lista
+        push 'N'       ; número da dica
+        call default_screen
+        add sp, 6
+
+
+set_option:
+    função:
+        lẽ a opção se for 2 pula pra a próxima, se for 1 coloca na tela de resposta faz a
+        leitura da resposta vê se é a resposta correta se for vai pra tela de acertou 
+        se não para a tela de errou
+
