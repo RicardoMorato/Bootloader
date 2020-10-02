@@ -82,12 +82,12 @@ print:
     pusha
 
     mov si, [bp+4]      ; passa pra si o valor do primeiro parâmetro desse procedimento, primeiro posição de memória da string a ser lida
-    print_loop:
+    .print_loop:
         lodsb           ; coloca em al o valor do byte na posição armazenada em si, depois si vai apontar par ao próximo byte na memória
         cmp al, 0
         je .end_print   
         call putchar           
-        jmp print_loop       
+        jmp .print_loop       
     .end_print:
         popa
         mov sp, bp
@@ -141,7 +141,7 @@ strcmp:
     mov cl, [bp+4]      ; passa pra cl o primeiro parâmetro desse procedimento
     mov si, [bp+6]      ; passa para si o segundo parâmetro desse procedimento
     mov di, [bp+8]      ; passa pra di o terceiro parâmetro desse procedimento
-    cmp_loop:
+    .cmp_loop:
         or cl, 0            ; se cl for 0 o resultado é 0, do contrário cl mantém seu valor
         jz .end
         mov bl, byte[di]    ; coloca o byte na posição armazenada em di em bl
@@ -152,7 +152,7 @@ strcmp:
         jne .end
         inc di
         dec cl
-        jmp cmp_loop
+        jmp .cmp_loop
     .end_equal:
         mov al, 1
         mov byte[flag], al
@@ -191,20 +191,20 @@ set_option:
 
     mov al, [bp+4]     ; coloca em al o primeiro parâmetro desse procedimento
     cmp al, 1
-    je read_loop1
-    read_loop:
+    je .read_loop1
+    .read_loop:
         call getchar
         cmp al, '1'
-        je ans
+        je .ans
         cmp al, '2'
-        je set_done
-        jmp read_loop
-    read_loop1:
+        je .set_done
+        jmp .read_loop
+    .read_loop1:
         call getchar
         cmp al, '1'
-        je ans
-        jmp read_loop1
-    ans:
+        je .ans
+        jmp .read_loop1
+    .ans:
         push 0x0a0d
         push 0x70        
         call clear
@@ -227,7 +227,7 @@ set_option:
 
         mov al, [flag]      ; o byte na posição armazenada em flag tem o resultado da comparação, passamos ele para al pra fazer o cmp
         cmp al, 0           ; se for 0 str1 e str2 são diferentes
-        je wrong_ans
+        je .wrong_ans
 
         push 0x0a1a
         push 0x27        
@@ -243,7 +243,7 @@ set_option:
         pop bp
         jmp done
 
-        wrong_ans:
+        .wrong_ans:
             push 0x0a1c
             push 0x40        
             call clear
@@ -257,7 +257,7 @@ set_option:
             mov sp, bp
             pop bp
             jmp done
-    set_done:
+    .set_done:
         popa
         mov sp, bp
         pop bp
@@ -300,7 +300,7 @@ defaul_screen:
     ret
     
 start:
-push 0x0c10
+    push 0x0c10
     push 0x70        ; 0xbl, b = cor do background, l = cor da letra
     call clear
     add sp, 4
