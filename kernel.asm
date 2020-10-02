@@ -101,22 +101,37 @@ input:
 
     mov cl, [bp+4]      ; passa pra cl o primeiro parâmetro desse procedimento, tamanho da string a ser lida
     mov di, [bp+6]      ; passa para di o segundo parâmetro desse procedimento, posição de memória pra armazenar a string
-    input_loop:
+    .input_loop:
         cmp cl, 0
         je .end_input
         call getchar
         cmp al, 0dh     ; compara al com o caracter de carriage return, se tiver sido pressionado enter vai dar igual
-        je .end_input     
+        je .end_input
+        cmp al, 08h
+        je .bck     
         mov [di], al    ; coloca o valor de al na posição de memória armazenada em di
         call putchar
         inc di
         dec cl
-        jmp input_loop
+        jmp .input_loop
+    .bck:
+        mov bl, [bp+4]  ; coloca em bl o tamanho da string
+        cmp cl, bl      ; vê se o contador tem o tamanho da string se tiver volta pra o loop
+        je .input_loop  
+        call putchar    ; imprime o caracter de backspace
+        mov al, ' '     
+        call putchar    ; cobre a letra atual com ' '
+        mov al, 08h     
+        call putchar    ; imprime backspace de novo
+        inc cl
+        dec di          ; limpa o caracter apagado da string
+        mov byte[di], 0
+        jmp .input_loop
     .end_input:
         popa
         mov sp, bp
         pop bp
-        ret
+    ret
 
 strcmp:
     push bp
