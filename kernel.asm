@@ -237,6 +237,8 @@ set_option:
         add sp, 6
 
         mov al, [flag]      ; o byte na posição armazenada em flag tem o resultado da comparação, passamos ele para al pra fazer o cmp
+        mov bl, 0
+        mov [flag], bl
         cmp al, 0           ; se for 0 str1 e str2 são diferentes
         je .wrong_ans
 
