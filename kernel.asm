@@ -252,7 +252,8 @@ set_option:
         popa
         mov sp, bp
         pop bp
-        jmp done
+        add sp, 4
+        jmp game.end_game
 
         .wrong_ans:
             push 0x0a1c
@@ -267,7 +268,8 @@ set_option:
             popa
             mov sp, bp
             pop bp
-            jmp done
+            add sp, 4
+            jmp game.end_game
     .set_done:
         popa
         mov sp, bp
@@ -346,42 +348,49 @@ menu:
         mov sp, bp
         pop bp
     ret
+game:
+    .loop:
+        call menu
+        push 0x0c10
+        push 0x70        ; 0xbl, b = cor do background, l = cor da letra
+        call clear
+        add sp, 4
+
+        push options1
+        push tip1
+        push '1'
+        call defaul_screen
+        add sp, 6
+
+        push 0
+        call set_option
+        add sp, 2
+
+        push options1
+        push tip2
+        push '2'
+        call defaul_screen
+        add sp, 6
+
+        push 0
+        call set_option
+        add sp, 2
+
+        push options2
+        push tip3
+        push '3'
+        call defaul_screen
+        add sp, 6
+
+        push 1
+        call set_option
+        add sp, 2
+        .end_game:
+        	call getchar
+        jmp .loop
+    ret
 
 start:
-    call menu
-    push 0x0c10
-    push 0x70        ; 0xbl, b = cor do background, l = cor da letra
-    call clear
-    add sp, 4
-
-    push options1
-    push tip1
-    push '1'
-    call defaul_screen
-    add sp, 6
-
-    push 0
-    call set_option
-    add sp, 2
-
-    push options1
-    push tip2
-    push '2'
-    call defaul_screen
-    add sp, 6
-
-    push 0
-    call set_option
-    add sp, 2
-
-    push options2
-    push tip3
-    push '3'
-    call defaul_screen
-    add sp, 6
-
-    push 1
-    call set_option
-    add sp, 2
+    call game
 done:
     jmp $
