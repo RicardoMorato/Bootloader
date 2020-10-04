@@ -241,6 +241,8 @@ set_option:
         add sp, 6
 
         mov al, [flag] ; o byte na posição armazenada em flag tem o resultado da comparação, passamos ele para al pra fazer o cmp
+        mov bl, 0
+        mov [flag], bl
         cmp al, 0      ; se for 0 str1 e str2 são diferentes
         je .wrong_ans
 
@@ -256,7 +258,8 @@ set_option:
         popa
         mov sp, bp
         pop bp
-        jmp done
+        add sp, 4
+        jmp game.end_game
 
         .wrong_ans:
             push 0x0a1c
@@ -271,7 +274,8 @@ set_option:
             popa
             mov sp, bp
             pop bp
-            jmp done
+            add sp, 4
+            jmp game.end_game
     .set_done:
         popa
         mov sp, bp
@@ -358,6 +362,48 @@ how_to_play:
 
     ret
 
+game:
+    .loop:
+        call menu
+        push 0x0c10
+        push 0x70
+        call clear
+        add sp, 4
+
+        push options1
+        push tip1
+        push '1'
+        call defaul_screen
+        add sp, 6
+
+        push 0
+        call set_option
+        add sp, 2
+
+        push options1
+        push tip2
+        push '2'
+        call defaul_screen
+        add sp, 6
+
+        push 0
+        call set_option
+        add sp, 2
+
+        push options2
+        push tip3
+        push '3'
+        call defaul_screen
+        add sp, 6
+
+        push 1
+        call set_option
+        add sp, 2
+        .end_game:
+        	call getchar
+        jmp .loop
+    ret
+
 menu:
     push bp
     mov bp, sp
@@ -398,40 +444,7 @@ menu:
     ret
 
 start:
-    call menu
-    push 0x0c10
-    push 0x70          ; 0xbl, b = cor do background, l = cor da letra
-    call clear
-    add sp, 4
+    call game
 
-    push options1
-    push tip1
-    push '1'
-    call defaul_screen
-    add sp, 6
-
-    push 0
-    call set_option
-    add sp, 2
-
-    push options1
-    push tip2
-    push '2'
-    call defaul_screen
-    add sp, 6
-
-    push 0
-    call set_option
-    add sp, 2
-
-    push options2
-    push tip3
-    push '3'
-    call defaul_screen
-    add sp, 6
-
-    push 1
-    call set_option
-    add sp, 2
 done:
     jmp $
