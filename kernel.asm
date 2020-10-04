@@ -4,7 +4,12 @@ jmp 0x0000:start
 data:
     welcome db 'Bem vindo ao jogo do Silvio Santos', 0
     msg_return db 'Pressione qualquer tecla para voltar', 0
-    initial_options db '(1) jogar     (2)como jogar     (3)creditos', 0
+    initial_options db '(1) jogar     (2) como jogar     (3) creditos', 0
+
+    msg_how_to_play_1 db 'Esse jogo foi criado para testar o seu brio, pessoa que esta lendo isso. Voce vai receber dicas (no maximo 3) para acertar uma palavra, caso voce consiga, parabens, voce tem brio, caso contrario...', 0
+    msg_how_to_play_2 db 'Para jogar, va ao menu principal (so pressionar qualquer tecla) e pressione 1 no seu teclado. Ao fazer isso voce sera redirecionado para a primeira dica da palavra. La, voce pode optar por responder direto (so pressionar 1) ou por receber outra dica (pressionando 2). Como ja foi dito antes, voce tem direito a no maximo 3 dicas. Vamo ver se voce eh leao!!', 0
+    msg_how_to_play_3 db 'A sorte esta lancada que Kant, ACM e todos os outros pensadores estejam com voce. Boa sorte, nobre usuario!', 0
+
     msg_creditos db 'Este jogo foi desenvolvido por Leo, Ricardo, Vituriano e Kennedy para a cadeira Infraestrutura de software', 0
 
     tip1 db 'Eu dizer, malandro voce eh tosquinho, voce nao entende', 0
@@ -235,10 +240,8 @@ set_option:
         call strcmp
         add sp, 6
 
-        mov al, [flag]      ; o byte na posição armazenada em flag tem o resultado da comparação, passamos ele para al pra fazer o cmp
-        mov bl, 0
-        mov [flag], bl
-        cmp al, 0           ; se for 0 str1 e str2 são diferentes
+        mov al, [flag] ; o byte na posição armazenada em flag tem o resultado da comparação, passamos ele para al pra fazer o cmp
+        cmp al, 0      ; se for 0 str1 e str2 são diferentes
         je .wrong_ans
 
         push 0x0a1a
@@ -253,8 +256,7 @@ set_option:
         popa
         mov sp, bp
         pop bp
-        add sp, 4
-        jmp game.end_game
+        jmp done
 
         .wrong_ans:
             push 0x0a1c
@@ -269,8 +271,7 @@ set_option:
             popa
             mov sp, bp
             pop bp
-            add sp, 4
-            jmp game.end_game
+            jmp done
     .set_done:
         popa
         mov sp, bp
@@ -328,6 +329,30 @@ how_to_play:
     call print
     add sp, 2
 
+    push 0x0104
+    call movecursor
+    add sp, 2
+
+    push msg_how_to_play_1
+    call print
+    add sp, 2
+
+    push 0x0604
+    call movecursor
+    add sp, 2
+
+    push msg_how_to_play_2
+    call print
+    add sp, 2
+
+    push 0x0d04
+    call movecursor
+    add sp, 2
+
+    push msg_how_to_play_3
+    call print
+    add sp, 2
+
     call getchar
     call menu
 
@@ -371,49 +396,42 @@ menu:
         mov sp, bp
         pop bp
     ret
-game:
-    .loop:
-        call menu
-        push 0x0c10
-        push 0x70        ; 0xbl, b = cor do background, l = cor da letra
-        call clear
-        add sp, 4
-
-        push options1
-        push tip1
-        push '1'
-        call defaul_screen
-        add sp, 6
-
-        push 0
-        call set_option
-        add sp, 2
-
-        push options1
-        push tip2
-        push '2'
-        call defaul_screen
-        add sp, 6
-
-        push 0
-        call set_option
-        add sp, 2
-
-        push options2
-        push tip3
-        push '3'
-        call defaul_screen
-        add sp, 6
-
-        push 1
-        call set_option
-        add sp, 2
-        .end_game:
-        	call getchar
-        jmp .loop
-    ret
 
 start:
-    call game
+    call menu
+    push 0x0c10
+    push 0x70          ; 0xbl, b = cor do background, l = cor da letra
+    call clear
+    add sp, 4
+
+    push options1
+    push tip1
+    push '1'
+    call defaul_screen
+    add sp, 6
+
+    push 0
+    call set_option
+    add sp, 2
+
+    push options1
+    push tip2
+    push '2'
+    call defaul_screen
+    add sp, 6
+
+    push 0
+    call set_option
+    add sp, 2
+
+    push options2
+    push tip3
+    push '3'
+    call defaul_screen
+    add sp, 6
+
+    push 1
+    call set_option
+    add sp, 2
 done:
     jmp $
