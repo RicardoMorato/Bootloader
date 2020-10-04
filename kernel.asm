@@ -8,7 +8,7 @@ data:
 
     msg_how_to_play_1 db 'Esse jogo foi criado para testar o seu brio, pessoa que esta lendo isso. Voce vai receber dicas (no maximo 3) para acertar uma palavra, caso voce consiga, parabens, voce tem brio, caso contrario...', 0
     msg_how_to_play_2 db 'Para jogar, va ao menu principal (so pressionar qualquer tecla) e pressione 1 no seu teclado. Ao fazer isso voce sera redirecionado para a primeira dica da palavra. La, voce pode optar por responder direto (so pressionar 1) ou por receber outra dica (pressionando 2). Como ja foi dito antes, voce tem direito a no maximo 3 dicas. Vamo ver se voce eh leao!!', 0
-    msg_how_to_play_3 db 'A sorte esta lancada que Kant, ACM e todos os outros pensadores estejam com voce. Boa sorte, nobre usuario!', 0
+    msg_how_to_play_3 db 'A sorte esta lancada. Que Kant, ACM e todos os outros pensadores estejam com voce. Boa sorte, nobre usuario!', 0
 
     msg_creditos db 'Este jogo foi desenvolvido por Leo, Ricardo, Vituriano e Kennedy para a cadeira Infraestrutura de software', 0
 
