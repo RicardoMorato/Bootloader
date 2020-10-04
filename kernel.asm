@@ -1,3 +1,4 @@
+
 org 0x7e00
 jmp 0x0000:start
 
@@ -29,8 +30,8 @@ data:
     str1 times 5 db 0
     str2 db 'brio',0
     flag db 0
-    msg_pontuacao db 'Sua pontuacao foi: ', 0
 
+    msg_pontuacao db 'Sua pontuacao foi: ', 0
     score0 db '0', 0
     score1 db '50', 0
     score2 db '100', 0
@@ -59,7 +60,7 @@ clear:
     int 10h             ; chamada para interrupção de BIOS 10h
 
 
-    push word[bp+6]     ; coloca o segundo parâmetro desse procedimento(clear) como parâmetro de movecursor
+    push word[bp+6]    ; coloca o segundo parâmetro desse procedimento(clear) como parâmetro de movecursor
     call movecursor
     add sp, 2
 
@@ -107,7 +108,7 @@ print:
     mov bp, sp
     pusha
 
-    mov si, [bp+4]      ; passa pra si o valor do primeiro parâmetro desse procedimento, primeiro posição de memória da string a ser lida
+    mov si, [bp+4]     ; passa pra si o valor do primeiro parâmetro desse procedimento, primeiro posição de memória da string a ser lida
     .print_loop:
         ; mov al, [si]
         ; inc si
@@ -127,13 +128,13 @@ input:
     mov bp, sp
     pusha
 
-    mov cl, [bp+4]      ; passa pra cl o primeiro parâmetro desse procedimento, tamanho da string a ser lida
-    mov di, [bp+6]      ; passa para di o segundo parâmetro desse procedimento, posição de memória pra armazenar a string
+    mov cl, [bp+4]     ; passa pra cl o primeiro parâmetro desse procedimento, tamanho da string a ser lida
+    mov di, [bp+6]     ; passa para di o segundo parâmetro desse procedimento, posição de memória pra armazenar a string
     .input_loop:
         cmp cl, 0
         je .end_input
         call getchar
-        cmp al, 0dh     ; compara al com o caracter de carriage return, se tiver sido pressionado enter vai dar igual
+        cmp al, 0dh    ; compara al com o caracter de carriage return, se tiver sido pressionado enter vai dar igual
         je .end_input
         cmp al, 08h
         je .bck
@@ -152,7 +153,7 @@ input:
         mov al, 08h     ; backspace
         call putchar    ; imprime backspace de novo
         inc cl
-        dec di          ; limpa o caracter apagado da string
+        dec di         ; limpa o caracter apagado da string
         mov byte[di], 0
         jmp .input_loop
     .end_input:
