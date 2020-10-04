@@ -10,7 +10,12 @@ data:
     msg_how_to_play_2 db 'Para jogar, va ao menu principal (so pressionar qualquer tecla) e pressione 1 no seu teclado. Ao fazer isso voce sera redirecionado para a primeira dica da palavra. La, voce pode optar por responder direto (so pressionar 1) ou por receber outra dica (pressionando 2). Como ja foi dito antes, voce tem direito a no maximo 3 dicas. Vamo ver se voce eh leao!!', 0
     msg_how_to_play_3 db 'A sorte esta lancada. Que Kant, ACM e todos os outros pensadores estejam com voce. Boa sorte, nobre usuario!', 0
 
-    msg_creditos db 'Este jogo foi desenvolvido por Leo, Ricardo, Vituriano e Kennedy para a cadeira Infraestrutura de software', 0
+    msg_credits_1 db 'Este jogo foi desenvolvido para a cadeira Infraestrutura de software por:', 0
+    msg_credits_leo db '    - Leonardo Gabriel Moreira de Oliveira - LGMO,', 0
+    msg_credits_ric db '    - Ricardo Morato Rocha - RMR,', 0
+    msg_credits_ken db '    - Kennedy Edmilson Cunha Melo - KECM,', 0
+    msg_credits_vitu db '    - Vituriano Oliveira Xisto - VOX', 0
+    msg_credits_2 db 'Agradecimentos especiais aos monitores, a todos os tutoriais da internet e ao pensador Clovis de Barros Filho, que nos deu o brio necessario para terminar esse projeto', 0
 
     tip1 db 'Eu dizer, malandro voce eh tosquinho, voce nao entende', 0
     tip2 db '  ISSO NA QUINTA SERIE PRIMARIA, JA DARIA PRA ENTENDER', 0
@@ -362,6 +367,68 @@ how_to_play:
     call getchar
     call game
 
+    popa
+    mov sp, bp
+    pop bp
+    ret
+
+credits:
+    push bp
+    mov bp, sp
+    pusha
+
+    push 0x1617
+    push 0x6f
+    call clear
+    add sp, 4
+
+    push msg_return
+    call print
+    add sp, 2
+
+    push 0x0104
+    call movecursor
+    add sp, 2
+
+    push msg_credits_1
+    call print
+    add sp, 2
+
+    call endl
+    call endl
+    push msg_credits_leo
+    call print
+    add sp, 2
+
+    call endl
+    push msg_credits_ric
+    call print
+    add sp, 2
+
+    call endl
+    push msg_credits_ken
+    call print
+    add sp, 2
+
+    call endl
+    push msg_credits_vitu
+    call print
+    add sp, 2
+
+    push 0x0804
+    call movecursor
+    add sp, 2
+
+    push msg_credits_2
+    call print
+    add sp, 2
+
+    call getchar
+    call game
+
+    popa
+    mov sp, bp
+    pop bp
     ret
 
 game:
@@ -435,10 +502,15 @@ menu:
         je .end_menu
         cmp al, '2'
         je .call_how_to_play
+        cmp al, '3'
+        je .call_credits
         jmp .get_options
 
     .call_how_to_play:
         call how_to_play
+
+    .call_credits:
+        call credits
 
     .end_menu:
         popa
