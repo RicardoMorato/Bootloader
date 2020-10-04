@@ -153,23 +153,27 @@ strcmp:
     mov bp, sp
     pusha
 
-    mov cl, [bp+4]     ; passa pra cl o primeiro parâmetro desse procedimento
-    mov si, [bp+6]     ; passa para si o segundo parâmetro desse procedimento
-    mov di, [bp+8]     ; passa pra di o terceiro parâmetro desse procedimento
+    mov cl, [bp+4]     ; tamanho
+    mov si, [bp+6]     ; resposta
+    mov di, [bp+8]     ; input
     .cmp_loop:
         cmp cl, 0      ; se cl for 0 o resultado é 0, do contrário cl mantém seu valor
         je .end
         mov bl, [di]   ; coloca o byte na posição armazenada de di em bl
         lodsb          ; coloca o valor na posição armazenada em si em al
-        or al, bl
-        jz .end_equal
         cmp al, bl
-        jne .end
+        je .end_equal
+        cmp al, bl
+        jne .end_different
         inc di
         dec cl
         jmp .cmp_loop
     .end_equal:
         mov al, 1
+        mov [flag], al
+        jmp .end
+    .end_different:
+        mov al, 0
         mov [flag], al
     .end:
         popa
@@ -241,8 +245,6 @@ set_option:
         add sp, 6
 
         mov al, [flag] ; o byte na posição armazenada em flag tem o resultado da comparação, passamos ele para al pra fazer o cmp
-        mov bl, 0
-        mov [flag], bl
         cmp al, 0      ; se for 0 str1 e str2 são diferentes
         je .wrong_ans
 
@@ -358,7 +360,7 @@ how_to_play:
     add sp, 2
 
     call getchar
-    call menu
+    call game
 
     ret
 
@@ -409,22 +411,23 @@ menu:
     mov bp, sp
     pusha
 
-    push 0x0117
-    push 0x3c
-    call clear
-    add sp, 4
+    .start_menu:
+        push 0x0117
+        push 0x3c
+        call clear
+        add sp, 4
 
-    push welcome
-    call print
-    add sp, 2
+        push welcome
+        call print
+        add sp, 2
 
-    push 0x1010
-    call movecursor
-    add sp, 2
+        push 0x1010
+        call movecursor
+        add sp, 2
 
-    push initial_options
-    call print
-    add sp,2
+        push initial_options
+        call print
+        add sp,2
 
     .get_options:
         call getchar
