@@ -2,6 +2,12 @@ org 0x7e00
 jmp 0x0000:start
 
 data:
+    welcome db 'Bem vindo ao jogo do Silvio Santos', 0
+    initial_options db '(1) jogar     (2)como jogar     (3)creditos', 0
+
+
+    msg_creditos db 'Este jogo foi desenvolvido por Leo, Ricardo, Vituriano e Kennedy para a cadeira Infraestrutura de software', 0
+
     tip1 db 'Eu dizer, malandro voce eh tosquinho, voce nao entende', 0
     tip2 db '  ISSO NA QUINTA SERIE PRIMARIA, JA DARIA PRA ENTENDER', 0
     tip3 db '    SE NAO O NEGO CAGA NA SUA CABECA, E VOCE NAO REAGE', 0
@@ -14,6 +20,8 @@ data:
     str1 times 5 db 0
     str2 db 'brio',0
     flag db 0
+
+
 
 clear:
     push bp             ; coloca a posição atual de bp na pilha
@@ -64,6 +72,7 @@ putchar:
     int 10h 
     ret
 
+
 endl:
     mov al, 0ah        ; coloca em al o caracter de quebra de linha
     call putchar         
@@ -83,6 +92,8 @@ print:
 
     mov si, [bp+4]      ; passa pra si o valor do primeiro parâmetro desse procedimento, primeiro posição de memória da string a ser lida
     .print_loop:
+        ;mov al, [si]
+        ;inc si
         lodsb           ; coloca em al o valor do byte na posição armazenada em si, depois si vai apontar par ao próximo byte na memória
         cmp al, 0
         je .end_print   
@@ -108,7 +119,7 @@ input:
         cmp al, 0dh     ; compara al com o caracter de carriage return, se tiver sido pressionado enter vai dar igual
         je .end_input
         cmp al, 08h
-        je .bck     
+        je .bck   
         mov [di], al    ; coloca o valor de al na posição de memória armazenada em di
         call putchar
         inc di
@@ -121,7 +132,7 @@ input:
         call putchar    ; imprime o caracter de backspace
         mov al, ' '     
         call putchar    ; cobre a letra atual com ' '
-        mov al, 08h     
+        mov al, 08h     ;backspace   
         call putchar    ; imprime backspace de novo
         inc cl
         dec di          ; limpa o caracter apagado da string
@@ -142,9 +153,9 @@ strcmp:
     mov si, [bp+6]      ; passa para si o segundo parâmetro desse procedimento
     mov di, [bp+8]      ; passa pra di o terceiro parâmetro desse procedimento
     .cmp_loop:
-        or cl, 0            ; se cl for 0 o resultado é 0, do contrário cl mantém seu valor
-        jz .end
-        mov bl, byte[di]    ; coloca o byte na posição armazenada em di em bl
+        cmp cl, 0            ; se cl for 0 o resultado é 0, do contrário cl mantém seu valor
+        je .end
+        mov bl, [di]    ; coloca o byte na posição armazenada de di em bl
         lodsb               ; coloca o valor na posição armazenada em si em al
         or al, bl
         jz .end_equal
@@ -155,7 +166,7 @@ strcmp:
         jmp .cmp_loop
     .end_equal:
         mov al, 1
-        mov byte[flag], al
+        mov [flag], al
     .end:
         popa
         mov sp, bp
@@ -273,6 +284,7 @@ defaul_screen:
     call tip_top
     add sp, 2       
 
+    
 
     push 0x0a0d       ;coloca na pilha os parâmetros para movecursor
     call movecursor
@@ -298,8 +310,45 @@ defaul_screen:
     mov sp, bp
     pop bp          ; restaura o valor de bp antes do call defaul_screen
     ret
+
+menu:
+    push bp
+    mov bp, sp
+    pusha
+
+    push 0x0119
+    push 0x3c
+    call clear
+    add sp, 4
+
+    push welcome
+    call print
+    add sp, 2
+
+    push 0x1010
+    call movecursor
+    add sp, 2
     
+    push initial_options
+    call print
+    add sp,2
+
+    .get_options:
+        call getchar
+        cmp al, '1'
+        je .end_menu
+        jmp .get_options
+        
+
+
+    .end_menu
+        popa
+        mov sp, bp
+        pop bp
+    ret
+
 start:
+    call menu
     push 0x0c10
     push 0x70        ; 0xbl, b = cor do background, l = cor da letra
     call clear
