@@ -40,11 +40,20 @@ data:
 
     cont db 0
 
+%macro begin 0 
+    push bp            ; coloca a posição atual de bp na pilha
+    mov bp, sp         ; faz bp apontar para a posição de bp apontar para o fim da pilha
+    pusha              ; salva o valor dos registradores na pilha
+%endmacro
+
+%macro end 0 
+    popa
+    mov sp, bp
+    pop bp
+%endmacro
 
 clear:
-    push bp             ; coloca a posição atual de bp na pilha
-    mov bp, sp          ; faz bp apontar para a posição de bp apontar para o fim da pilha
-    pusha               ; salva o valor dos registradores na pilha
+    begin
 
 
                         ; [bp] = valor inicial de bh
@@ -70,18 +79,14 @@ clear:
     ret
 
 movecursor:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov dx, [bp+4]      ; coloca em dx a word que diz a linha e a coluna para onde o cursor deve ser movido
     mov ah, 02h         ; código para a função que move o cursor
     mov bh, 0
     int 10h
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 putchar:
@@ -104,9 +109,7 @@ getchar:
     ret
 
 print:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov si, [bp+4]     ; passa pra si o valor do primeiro parâmetro desse procedimento, primeiro posição de memória da string a ser lida
     .print_loop:
@@ -124,9 +127,7 @@ print:
     ret
 
 input:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov cl, [bp+4]     ; passa pra cl o primeiro parâmetro desse procedimento, tamanho da string a ser lida
     mov di, [bp+6]     ; passa para di o segundo parâmetro desse procedimento, posição de memória pra armazenar a string
@@ -163,9 +164,7 @@ input:
     ret
 
 strcmp:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov cl, [bp+4]      ; tamanho
     mov si, [bp+6]      ; resposta
@@ -196,9 +195,7 @@ strcmp:
     ret
 
 tip_top:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     push 0x0423         ; passa os parâmetros para usar no movecursor do clear
     push 70h            ; passa os parâmetros para mudar a cor da letra e tela
@@ -212,15 +209,11 @@ tip_top:
     mov al, [bp+4]      ; passa o primeiro parâmetro desse procedimento(tip_top) em al
     call putchar
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 set_option:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov al, [bp+4]      ; coloca em al o primeiro parâmetro desse procedimento
     cmp al, 1
@@ -304,9 +297,7 @@ set_option:
 
 
 defaul_screen:
-    push bp             ; coloca a posição atual de bp na pilha
-    mov bp, sp          ; faz bp apontar para a posição de bp apontar para o fim da pilha
-    pusha               ; salva o valor dos registradores na pilha
+    begin
 
     push word[bp+4]     ; coloca o 1º parâmetro dessa função(defaul_screen) na pilha para ser parâmetro de tip_top
     call tip_top
@@ -340,9 +331,7 @@ defaul_screen:
     ret
 
 pontuacao:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     push 0x0919
     push 0x0f
@@ -414,9 +403,7 @@ pontuacao:
     ret
 
 how_to_play:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     push 0x1617
     push 0x8c
@@ -454,15 +441,11 @@ how_to_play:
     call getchar
     call game
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 credits:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     push 0x1617
     push 0x6f
@@ -513,9 +496,7 @@ credits:
     call getchar
     call game
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 game:
@@ -564,9 +545,7 @@ game:
     ret
 
 menu:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     .start_menu:
         push 0x0117
