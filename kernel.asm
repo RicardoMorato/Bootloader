@@ -339,7 +339,7 @@ defaul_screen:
     pop bp              ; restaura o valor de bp antes do call defaul_screen
     ret
 
-    pontuacao:
+pontuacao:
     push bp
     mov bp, sp
     pusha
