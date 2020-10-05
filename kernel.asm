@@ -77,6 +77,7 @@ data:
     push %1
     push ans%2
     push %2
+    push 0
     call set_option
     add sp, 6
 
@@ -90,6 +91,7 @@ data:
     push %1
     push ans%2
     push %2
+    push 0
     call set_option
     add sp, 6
 
@@ -102,6 +104,7 @@ data:
     push %1
     push ans%2
     push %2
+    push 1
     call set_option
     add sp, 6
 
@@ -110,7 +113,7 @@ data:
 
 %macro next 0
     add sp, 8
-    mov al, [bp+4]
+    mov al, [bp+6]
     cmp al, 1
     je game.end_turn1
     cmp al, 2
@@ -284,7 +287,7 @@ set_option:
     begin
 
     mov al, [bp+4]      ; coloca em al o primeiro parâmetro desse procedimento
-    cmp al, 3
+    cmp al, 1
     je .read_loop1
     .read_loop:
         call getchar
@@ -314,8 +317,8 @@ set_option:
         add sp, 4
 
         push user_ans
-        push word[bp+6]     ; string da resposta 
-        push word[bp+8]     ; tamanho da string da resposta
+        push word[bp+8]     ; string da resposta 
+        push word[bp+10]     ; tamanho da string da resposta
         call strcmp
         add sp, 6
 
