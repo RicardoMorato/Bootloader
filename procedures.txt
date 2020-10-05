@@ -135,9 +135,16 @@ macro turn:
     uso:
         turn size_ans, N ; size_ans é o tamanho da resposta
                          ; N é o número do turno
+
 macro next:
     função:
         vê qual é o turno da set_option atual e faz o jump
         para o label após esse turno
     uso:
         next
+
+macro begin:
+    função:
+        Atualiza a posição e valores atuais dos registradores na pilha no começo de todos os procedimentos.
+    uso:
+        begin
