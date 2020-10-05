@@ -124,7 +124,7 @@ data:
     cmp al, 2
     je game.end_turn2    ; final do turno 2
     cmp al, 3
-    je game.end_turn3   ; final do turno 3
+    je game.end_turn3    ; final do turno 3
     jmp game.end_turn4
 %endmacro
 
@@ -225,9 +225,7 @@ input:
         mov byte[di], 0
         jmp .input_loop
     .end_input:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 strcmp:
@@ -400,28 +398,28 @@ pontuacao:
 
     push 0x0919
     push 0x0f
-    call clear
+    call clear           ; Limpa a tela
     add sp, 4
 
     push msg_pontuacao
-    call print
+    call print           ; Printa a mensagem "Sua pontuacao foi: "
     add sp, 2
 
-    mov al, [cont]
+    mov al, [cont]       ; Move o valor do contador para o registrador al
 
-    cmp al, 0
+    cmp al, 0            ; Compara para ver se o valor no al é 0. Se sim, significa que a pessoa não acertou nenhuma palavra e, portanto, a label .score_0 é chamada, para mostrar a mensagem certa
     je .score_0
 
-    cmp al, 1
+    cmp al, 1            ; Compara o valor em al para ver se é 1. Se sim, significa que a pessoa só acertou uma palavra
     je .score_1
 
-    cmp al, 2
+    cmp al, 2            ; Compara o valor em al para ver se é 2. Se sim, significa que a pessoa só acertou duas palavras
     je .score_2
 
-    cmp al, 3
+    cmp al, 3            ; Compara o valor em al para ver se é 3. Se sim, significa que a pessoa só acertou três palavras
     je .score_3
 
-    cmp al, 4
+    cmp al, 4            ; Compara o valor em al para ver se é 4. Se sim, significa que a pessoa só acertou quatro (todas) palavras
     je .score_4
 
     .score_0:
@@ -454,17 +452,12 @@ pontuacao:
         add sp,2
         jmp .end_pontuacao
 
-
-
-
     .end_pontuacao:
-        call getchar
-        mov al, 0
-        mov [cont], al
+        call getchar ; Invoca o procedimento getchar para travar o fluxo do jogo até que o usuário pressione uma tecla para sair da tela
+        mov al, 0 ; Muda o valor registrado em al para zero
+        mov [cont], al ; Reinicia o contador
 
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 how_to_play:
@@ -472,7 +465,7 @@ how_to_play:
 
     push 0x1617
     push 0x8c
-    call clear
+    call clear           ; Limpa a tela
     add sp, 4
 
     push msg_return
@@ -620,9 +613,7 @@ menu:
         call credits
 
     .end_menu:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 start:
