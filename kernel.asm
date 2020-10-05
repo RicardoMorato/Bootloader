@@ -453,9 +453,9 @@ pontuacao:
         jmp .end_pontuacao
 
     .end_pontuacao:
-        call getchar ; Invoca o procedimento getchar para travar o fluxo do jogo até que o usuário pressione uma tecla para sair da tela
-        mov al, 0 ; Muda o valor registrado em al para zero
-        mov [cont], al ; Reinicia o contador
+        call getchar     ; Invoca o procedimento getchar para travar o fluxo do jogo até que o usuário pressione uma tecla para sair da tela
+        mov al, 0        ; Muda o valor registrado em al para zero
+        mov [cont], al   ; Reinicia o contador
 
         end
     ret
@@ -469,35 +469,35 @@ how_to_play:
     add sp, 4
 
     push msg_return
-    call print
+    call print           ; Printa a mensagem "Pressione qualquer tecla para voltar"
     add sp, 2
 
     push 0x0104
-    call movecursor
+    call movecursor      ; Coloca o cursor no começo da tela, para escrever o resto das mensagens
     add sp, 2
 
     push msg_how_to_play_1
-    call print
+    call print           ; Printa o primeiro parágrafo da tela
     add sp, 2
 
     push 0x0604
-    call movecursor
+    call movecursor      ; Move cursor mais para baixo
     add sp, 2
 
     push msg_how_to_play_2
-    call print
+    call print           ; Printa o segundo parágrafo na tela
     add sp, 2
 
     push 0x0d04
-    call movecursor
+    call movecursor      ; Move o cursor mais para baixo
     add sp, 2
 
     push msg_how_to_play_3
-    call print
+    call print           ; Printa o terceiro parágrafo na tela
     add sp, 2
 
-    call getchar
-    call game
+    call getchar         ; Trava o fluxo para que o usuário só saia da tela se pressionar alguma tela
+    call game            ; Volta ao menu principal
 
     end
     ret
@@ -507,19 +507,19 @@ credits:
 
     push 0x1617
     push 0x6f
-    call clear
+    call clear           ; Limpa a tela
     add sp, 4
 
     push msg_return
-    call print
+    call print           ; Printa a mensagem "Pressione qualquer tecla para voltar"
     add sp, 2
 
     push 0x0104
-    call movecursor
+    call movecursor      ; Coloca o cursor no começo da tela, para escrever o resto das mensagens
     add sp, 2
 
     push msg_credits_1
-    call print
+    call print           ; Printa o primeiro parágrafo da tela
     add sp, 2
 
     call endl
@@ -551,8 +551,8 @@ credits:
     call print
     add sp, 2
 
-    call getchar
-    call game
+    call getchar         ; Trava o fluxo para que o usuário só saia da tela se pressionar alguma tela
+    call game            ; Volta ao menu principal
 
     end
     ret
