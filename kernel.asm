@@ -79,7 +79,7 @@ data:
     push %2
     push 0
     call set_option
-    add sp, 6
+    add sp, 8
 
     push options1
     push ans%2_tip2
@@ -93,7 +93,7 @@ data:
     push %2
     push 0
     call set_option
-    add sp, 6
+    add sp, 8
 
     push options2
     push ans%2_tip3
@@ -106,7 +106,7 @@ data:
     push %2
     push 1
     call set_option
-    add sp, 6
+    add sp, 8
 
     .end_turn%2:
 %endmacro 
