@@ -15,20 +15,35 @@ data:
     msg_credits_leo db '    - Leonardo Gabriel Moreira de Oliveira - LGMO,', 0
     msg_credits_ric db '    - Ricardo Morato Rocha - RMR,', 0
     msg_credits_ken db '    - Kennedy Edmilson Cunha Melo - KECM,', 0
-    msg_credits_vitu db '    - Vituriano Oliveira Xisto - VOX', 0
+    msg_credits_vitu db '    - Vituriano Oliveira Xisto - VOX', 0    
     msg_credits_2 db 'Agradecimentos especiais aos monitores, a todos os tutoriais da internet e ao pensador Clovis de Barros Filho, que nos deu o brio necessario para terminar esse projeto.', 0
 
-    tip1 db 'Eu dizer, malandro voce eh tosquinho, voce nao entende', 0
-    tip2 db '  ISSO NA QUINTA SERIE PRIMARIA, JA DARIA PRA ENTENDER', 0
-    tip3 db '    SE NAO O NEGO CAGA NA SUA CABECA, E VOCE NAO REAGE', 0
+    ans1_tip1 db 'Login', 0
+    ans1_tip2 db 'Eu tenho um suco de manga', 0
+    ans1_tip3 db 'kkkkkkkkk eh brincadeira', 0
+
+    ans2_tip1 db 'Eu dizer, malandro voce eh tosquinho, voce nao entende', 0
+    ans2_tip2 db '  ISSO NA QUINTA SERIE PRIMARIA, JA DARIA PRA ENTENDER', 0
+    ans2_tip3 db '    SE NAO O NEGO CAGA NA SUA CABECA, E VOCE NAO REAGE', 0
+
+    ans3_tip1 db 'Tipo de arma', 0
+    ans3_tip2 db 'Atira pedras longe', 0
+    ans3_tip3 db 'Usada na grecia antiga', 0
+
     tip db 'Dica ',0
     options1 db '(1) Responder      (2) Proxima dica' , 0
     options2 db '           (1) Responder' , 0
     msg db 'Digite a resposta: ', 0
     correct db 'Parabens! Voce tem brio ;)', 0
     wrong db 'Voce nao entende :/', 0
-    str1 times 5 db 0
-    str2 db 'brio',0
+    user_ans times 20 db 0
+    
+    ans1 db 'acm',0
+    size_ans1 db 0,3
+    ans2 db 'brio',0
+    size_ans2 db 0,4
+    ans3 db 'catapulta',0
+    size_ans3 db 0,9
     flag db 0
 
     msg_pontuacao db 'Sua pontuacao foi: ', 0
@@ -51,6 +66,59 @@ data:
     mov sp, bp
     pop bp
 %endmacro
+
+%macro turn 2
+    push options1
+    push ans%2_tip1
+    push '1'
+    call default_screen
+    add sp, 6
+
+    push %1
+    push ans%2
+    push %2
+    call set_option
+    add sp, 6
+
+    push options1
+    push ans%2_tip2
+    push '2'
+    call default_screen
+    add sp, 6
+
+
+    push %1
+    push ans%2
+    push %2
+    call set_option
+    add sp, 6
+
+    push options2
+    push ans%2_tip3
+    push '3'
+    call default_screen
+    add sp, 6
+
+    push %1
+    push ans%2
+    push %2
+    call set_option
+    add sp, 6
+
+    .end_turn%2:
+%endmacro 
+
+%macro next 0
+    add sp, 8
+    mov al, [bp+4]
+    cmp al, 1
+    je game.end_turn1
+    cmp al, 2
+    je game.end_turn2
+    jmp game.end_game
+%endmacro
+    
+    
 
 clear:
     begin
@@ -75,7 +143,7 @@ clear:
 
     popa                ; restaura os valores dos registradores, os que foram adicionados a pilha em pusha
     mov sp, bp          ; restaura o valor de sp
-    pop bp              ; restaura o valor de bp antes do call defaul_screen
+    pop bp              ; restaura o valor de bp antes do call default_screen
     ret
 
 movecursor:
@@ -216,7 +284,7 @@ set_option:
     begin
 
     mov al, [bp+4]      ; coloca em al o primeiro parâmetro desse procedimento
-    cmp al, 1
+    cmp al, 3
     je .read_loop1
     .read_loop:
         call getchar
@@ -240,14 +308,14 @@ set_option:
         call print
         add sp, 2
 
-        push str1
-        push 5
+        push user_ans
+        push 15
         call input
         add sp, 4
 
-        push str1
-        push str2
-        push 5
+        push user_ans
+        push word[bp+6]     ; string da resposta 
+        push word[bp+8]     ; tamanho da string da resposta
         call strcmp
         add sp, 6
 
@@ -267,13 +335,8 @@ set_option:
         push correct
         call print
         add sp, 2
-
-        popa
-        mov sp, bp
-        pop bp
-        add sp, 4
-        jmp game.end_game
-
+        call getchar
+        next
         .wrong_ans:
             push 0x0a1c
             push 0x40
@@ -283,23 +346,17 @@ set_option:
             push wrong
             call print
             add sp, 2
-
-            popa
-            mov sp, bp
-            pop bp
-            add sp, 4
-            jmp game.end_game
+            call getchar
+            next 
     .set_done:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 
-defaul_screen:
+default_screen:
     begin
 
-    push word[bp+4]     ; coloca o 1º parâmetro dessa função(defaul_screen) na pilha para ser parâmetro de tip_top
+    push word[bp+4]     ; coloca o 1º parâmetro dessa função(default_screen) na pilha para ser parâmetro de tip_top
     call tip_top
     add sp, 2
 
@@ -327,7 +384,7 @@ defaul_screen:
 
     popa                ; restaura os valores dos registradores, os que foram adicionados a pilha em pusha
     mov sp, bp
-    pop bp              ; restaura o valor de bp antes do call defaul_screen
+    pop bp              ; restaura o valor de bp antes do call default_screen
     ret
 
 pontuacao:
@@ -359,31 +416,31 @@ pontuacao:
     cmp al, 4
     je .score_4
 
-    .score_0
+    .score_0:
         push score0
         call print
         add sp,2
         jmp .end_pontuacao
 
-    .score_1
+    .score_1:
         push score1
         call print
         add sp,2
         jmp .end_pontuacao
 
-    .score_2
+    .score_2:
         push score2
         call print
         add sp,2
         jmp .end_pontuacao
 
-    .score_3
+    .score_3:
         push score3
         call print
         add sp,2
         jmp .end_pontuacao
 
-    .score_4
+    .score_4:
         push score4
         call print
         add sp,2
@@ -506,37 +563,10 @@ game:
         push 0x70
         call clear
         add sp, 4
-
-        push options1
-        push tip1
-        push '1'
-        call defaul_screen
-        add sp, 6
-
-        push 0
-        call set_option
-        add sp, 2
-
-        push options1
-        push tip2
-        push '2'
-        call defaul_screen
-        add sp, 6
-
-        push 0
-        call set_option
-        add sp, 2
-
-        push options2
-        push tip3
-        push '3'
-        call defaul_screen
-        add sp, 6
-
-        push 1
-        call set_option
-        add sp, 2
-
+        
+        turn 03h, 1
+        turn 04h, 2
+        turn 09h, 3
         .end_game:
             call getchar
 
