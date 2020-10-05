@@ -111,6 +111,15 @@ pontuacao:
     uso:
         call pontuacao
 
+
+how_to_play:
+    função:
+        Mostra a tela de "Como jogar".
+        Dentro da tela aparecem todas as informações de como jogar o jogo.
+        Sua implementação é bem simples, se baseia em um conjunto de chamadas das funções "print" e "movecursor".
+    uso:
+        call how_to_play
+
 macro turn:
     função:
         mostrar as 3 telas de dicas, fazer a leitura da reposta,
