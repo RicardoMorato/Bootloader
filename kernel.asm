@@ -171,11 +171,11 @@ strcmp:
     mov di, [bp+8]      ; input
     .cmp_loop:
         cmp cl, 0       ; se cl for 0 o resultado é 0, do contrário cl mantém seu valor
-        je .end
-        mov bl, [di]    ; coloca o byte na posição armazenada de di em bl
-        lodsb           ; coloca o valor na posição armazenada em si em al
-        cmp al, bl
         je .end_equal
+        mov bl, [di]    ; coloca o byte na posição armazenada de di em bl
+        mov al, 0
+        mov [di], al
+        lodsb           ; coloca o valor na posição armazenada em si em al
         cmp al, bl
         jne .end_different
         inc di
