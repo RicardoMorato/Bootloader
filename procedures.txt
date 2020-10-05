@@ -145,6 +145,12 @@ macro next:
 
 macro begin:
     função:
-        Atualiza a posição e valores atuais dos registradores na pilha no começo de todos os procedimentos.
+        Atualiza a posição e valores atuais dos registradores na pilha no começo dos procedimentos.
     uso:
         begin
+
+macro begin:
+    função:
+        Atualiza a posição e valores atuais dos registradores na pilha no final dos procedimentos.
+    uso:
+        end
