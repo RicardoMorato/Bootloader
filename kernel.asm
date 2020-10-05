@@ -244,8 +244,6 @@ strcmp:
         cmp cl, 0       ; se cl for 0 o resultado é 0, do contrário cl mantém seu valor
         je .end_equal
         mov bl, [di]    ; coloca o byte na posição armazenada de di em bl
-        mov al, 0
-        mov [di], al
         lodsb           ; coloca o valor na posição armazenada em si em al
         cmp al, bl
         jne .end_different
@@ -253,12 +251,28 @@ strcmp:
         dec cl
         jmp .cmp_loop
     .end_equal:
+        ; precisa ver se depois da strin certa tem um 0
+        ; ou uma letra exempl 'brio',0(correto) ou 'brioo', 0(errado)
+        mov al, [di]
+        cmp al, 0
+        jne .end_different 
         mov al, 1
         mov [flag], al
-        jmp .end
+        jmp .erase
     .end_different:
         mov al, 0
         mov [flag], al
+    .erase:
+        mov cl, 15
+        mov di, [bp+8]
+        .erase_loop:
+            cmp cl, 0
+            je .end
+            mov al, 0
+            mov [di], al
+            inc di
+            dec cl
+            jmp .erase_loop
     .end:
         popa
         mov sp, bp
