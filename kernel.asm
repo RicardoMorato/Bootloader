@@ -30,13 +30,20 @@ data:
     str2 db 'brio',0
     flag db 0
 
-
-
-clear:
+%macro begin 0 
     push bp            ; coloca a posição atual de bp na pilha
     mov bp, sp         ; faz bp apontar para a posição de bp apontar para o fim da pilha
     pusha              ; salva o valor dos registradores na pilha
+%endmacro
 
+%macro end 0 
+    popa
+    mov sp, bp
+    pop bp
+%endmacro
+
+clear:
+    begin
 
                        ; [bp] = valor inicial de bh
                        ; [bp+2] = endereço de retorno
@@ -55,24 +62,18 @@ clear:
     call movecursor
     add sp, 2
 
-    popa               ; restaura os valores dos registradores, os que foram adicionados a pilha em pusha
-    mov sp, bp         ; restaura o valor de sp
-    pop bp             ; restaura o valor de bp antes do call defaul_screen
+    end
     ret
 
 movecursor:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov dx, [bp+4]     ; coloca em dx a word que diz a linha e a coluna para onde o cursor deve ser movido
     mov ah, 02h        ; código para a função que move o cursor
     mov bh, 0
     int 10h
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 putchar:
@@ -95,9 +96,7 @@ getchar:
     ret
 
 print:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov si, [bp+4]     ; passa pra si o valor do primeiro parâmetro desse procedimento, primeiro posição de memória da string a ser lida
     .print_loop:
@@ -109,15 +108,11 @@ print:
         call putchar
         jmp .print_loop
     .end_print:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 input:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov cl, [bp+4]     ; passa pra cl o primeiro parâmetro desse procedimento, tamanho da string a ser lida
     mov di, [bp+6]     ; passa para di o segundo parâmetro desse procedimento, posição de memória pra armazenar a string
@@ -148,15 +143,11 @@ input:
         mov byte[di], 0
         jmp .input_loop
     .end_input:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 strcmp:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov cl, [bp+4]     ; tamanho
     mov si, [bp+6]     ; resposta
@@ -181,15 +172,11 @@ strcmp:
         mov al, 0
         mov [flag], al
     .end:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 tip_top:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     push 0x0423        ; passa os parâmetros para usar no movecursor do clear
     push 70h           ; passa os parâmetros para mudar a cor da letra e tela
@@ -203,15 +190,11 @@ tip_top:
     mov al, [bp+4]     ; passa o primeiro parâmetro desse procedimento(tip_top) em al
     call putchar
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 set_option:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     mov al, [bp+4]     ; coloca em al o primeiro parâmetro desse procedimento
     cmp al, 1
@@ -262,9 +245,7 @@ set_option:
         call print
         add sp, 2
 
-        popa
-        mov sp, bp
-        pop bp
+        end
         add sp, 4
         jmp game.end_game
 
@@ -278,22 +259,16 @@ set_option:
             call print
             add sp, 2
 
-            popa
-            mov sp, bp
-            pop bp
+            end
             add sp, 4
             jmp game.end_game
     .set_done:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 
 defaul_screen:
-    push bp            ; coloca a posição atual de bp na pilha
-    mov bp, sp         ; faz bp apontar para a posição de bp apontar para o fim da pilha
-    pusha              ; salva o valor dos registradores na pilha
+    begin
 
     push word[bp+4]    ; coloca o 1º parâmetro dessa função(defaul_screen) na pilha para ser parâmetro de tip_top
     call tip_top
@@ -321,15 +296,11 @@ defaul_screen:
     call print
     add sp, 2
 
-    popa               ; restaura os valores dos registradores, os que foram adicionados a pilha em pusha
-    mov sp, bp
-    pop bp             ; restaura o valor de bp antes do call defaul_screen
+    end
     ret
 
 how_to_play:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     push 0x1617
     push 0x8c
@@ -367,15 +338,11 @@ how_to_play:
     call getchar
     call game
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 credits:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     push 0x1617
     push 0x6f
@@ -426,9 +393,7 @@ credits:
     call getchar
     call game
 
-    popa
-    mov sp, bp
-    pop bp
+    end
     ret
 
 game:
@@ -474,9 +439,7 @@ game:
     ret
 
 menu:
-    push bp
-    mov bp, sp
-    pusha
+    begin
 
     .start_menu:
         push 0x0117
@@ -513,9 +476,7 @@ menu:
         call credits
 
     .end_menu:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 start:
