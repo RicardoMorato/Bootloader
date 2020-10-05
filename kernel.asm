@@ -16,7 +16,7 @@ data:
     msg_credits_ric db '    - Ricardo Morato Rocha - RMR,', 0
     msg_credits_ken db '    - Kennedy Edmilson Cunha Melo - KECM,', 0
     msg_credits_vitu db '    - Vituriano Oliveira Xisto - VOX', 0
-    msg_credits_2 db 'Agradecimentos especiais aos monitores, a todos os tutoriais da internet e ao pensador Clovis de Barros Filho, que nos deu o brio necessario para terminar esse projeto', 0
+    msg_credits_2 db 'Agradecimentos especiais aos monitores, a todos os tutoriais da internet e ao pensador Clovis de Barros Filho, que nos deu o brio necessario para terminar esse projeto.', 0
 
     tip1 db 'Eu dizer, malandro voce eh tosquinho, voce nao entende', 0
     tip2 db '  ISSO NA QUINTA SERIE PRIMARIA, JA DARIA PRA ENTENDER', 0
