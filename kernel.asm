@@ -578,7 +578,7 @@ game:
 menu:
     begin
 
-    .start_menu:
+    .start_menu:         ; Tela inicial do menu, aqui tem a mensagem de boas vindas e as opções iniciais (Jogar, Como Jogar e Créditos)
         push 0x0117
         push 0x3c
         call clear
@@ -596,7 +596,7 @@ menu:
         call print
         add sp,2
 
-    .get_options:
+    .get_options:        ; Compara qual opção foi escolhida pelo usuário (1, 2 ou 3) e o redireciona para a tela correspondente
         call getchar
         cmp al, '1'
         je .end_menu
