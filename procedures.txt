@@ -120,6 +120,13 @@ how_to_play:
     uso:
         call how_to_play
 
+
+credits:
+    função:
+        Mostra a tela de "Créditos".
+        Dentro da tela aparecem todas as informações referentes ao grupo que fez o jogo e alguns agradecimentos.
+        Sua implementação é bem simples, se baseia em um conjunto de chamadas das funções "print" e "movecursor".
+
 macro turn:
     função:
         mostrar as 3 telas de dicas, fazer a leitura da reposta,
