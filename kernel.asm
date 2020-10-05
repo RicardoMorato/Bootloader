@@ -68,35 +68,35 @@ data:
 %endmacro
 
 %macro turn 2
-    push options1
-    push ans%2_tip1
-    push '1'
+    push options1          ; string das opções       
+    push ans%2_tip1        ; dica 1 do turno atual
+    push '1'               ; número da dica
     call default_screen
     add sp, 6
 
-    push %1
-    push ans%2
-    push %2
-    push 0
+    push %1                 ; tamanho da string de resposta
+    push ans%2              ; string da resposta certa
+    push %2                 ; número do turno atual
+    push 0                  ; 0 indica que vai ter duas opçoes
     call set_option
-    add sp, 8
+    add sp, 8               
 
     push options1
-    push ans%2_tip2
+    push ans%2_tip2         ; dica 2 do turno atual
     push '2'
     call default_screen
     add sp, 6
 
 
-    push %1
-    push ans%2
+    push %1             
+    push ans%2         
     push %2
     push 0
     call set_option
     add sp, 8
 
     push options2
-    push ans%2_tip3
+    push ans%2_tip3         ; dica 3 do turno atual
     push '3'
     call default_screen
     add sp, 6
@@ -104,21 +104,23 @@ data:
     push %1
     push ans%2
     push %2
-    push 1
+    push 1                  ; indica que o usuário só tem 1 opção
     call set_option
-    add sp, 8
 
-    .end_turn%2:
+    .end_turn%2:            ; o programa vem pra cá depois que o usuário responde
+    end                     ; como ele não veio pelo ret, é preciso restaurar os registradores
+    add sp, 10              ; tirar os parâmetros da pilha e o endereço de retorno
 %endmacro 
 
 %macro next 0
-    add sp, 8
-    mov al, [bp+6]
-    cmp al, 1
-    je game.end_turn1
+    ; remove da pilha os parâmetros da set_option e o
+    ; e o endereço de retorno
+    mov al, [bp+6]         ; [bp+6] tem o número do turno atual 
+    cmp al, 1              
+    je game.end_turn1      ; final do turno 1
     cmp al, 2
-    je game.end_turn2
-    jmp game.end_game
+    je game.end_turn2      ; final do turno 2
+    jmp game.end_turn3     ; final do turno 3
 %endmacro
     
     
@@ -126,13 +128,8 @@ data:
 clear:
     begin
 
-
-                        ; [bp] = valor inicial de bh
-                        ; [bp+2] = endereço de retorno
-                        ; [bp+4] = último parâmetro adicionado na pilha
-
     mov ah, 07h         ; código para função rolagem de tela
-    mov bh, [bp+4]      ; coloca em bh o primeiro parâmetro desse procedimento
+    mov bh, [bp+4]      ; coloca em bh o parâmetro 1 desse procedimento(cor)
     mov al, 00h         ; indica que é pra limpar a tela
     mov cx, 00h         ; ponto da extremidade superior esquerda do retângulo a ser  limpo (0, 0)
     mov dh, 18h         ; y do ponto da extremidade superior direita do retângulo a ser limpo
@@ -140,15 +137,12 @@ clear:
     int 10h             ; chamada para interrupção de BIOS 10h
 
 
-    push word[bp+6]    ; coloca o segundo parâmetro desse procedimento(clear) como parâmetro de movecursor
+    push word[bp+6]    ; coloca o parâmetro 2 desse procedimento como parâmetro de movecursor
     call movecursor
     add sp, 2
 
-    popa                ; restaura os valores dos registradores, os que foram adicionados a pilha em pusha
-    mov sp, bp          ; restaura o valor de sp
-    pop bp              ; restaura o valor de bp antes do call default_screen
+    end
     ret
-
 movecursor:
     begin
 
@@ -166,7 +160,6 @@ putchar:
     int 10h
     ret
 
-
 endl:
     mov al, 0ah         ; coloca em al o caracter de quebra de linha
     call putchar
@@ -182,7 +175,7 @@ getchar:
 print:
     begin
 
-    mov si, [bp+4]     ; passa pra si o valor do primeiro parâmetro desse procedimento, primeiro posição de memória da string a ser lida
+    mov si, [bp+4]     ; passa pra si o valor do parâmetro 1 desse procedimento, primeiro posição de memória da string a ser lida
     .print_loop:
         ; mov al, [si]
         ; inc si
@@ -192,27 +185,25 @@ print:
         call putchar
         jmp .print_loop
     .end_print:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 input:
     begin
 
     mov cl, [bp+4]     ; passa pra cl o primeiro parâmetro desse procedimento, tamanho da string a ser lida
-    mov di, [bp+6]     ; passa para di o segundo parâmetro desse procedimento, posição de memória pra armazenar a string
+    mov di, [bp+6]     ; passa para di o  parâmetro 2 desse procedimento, posição de memória pra armazenar a string
     .input_loop:
         cmp cl, 0
         je .end_input
         call getchar
         cmp al, 0dh    ; compara al com o caracter de carriage return, se tiver sido pressionado enter vai dar igual
         je .end_input
-        cmp al, 08h
+        cmp al, 08h    ; compara al com o caracter backspace
         je .bck
-        mov [di], al    ; coloca o valor de al na posição de memória armazenada em di
+        mov [di], al   ; coloca o valor de al na posição de memória armazenada em di
         call putchar
-        inc di
+        inc di         ; di vai apontar para a próxima posição na memória
         dec cl
         jmp .input_loop
     .bck:
@@ -237,11 +228,11 @@ input:
 strcmp:
     begin
 
-    mov cl, [bp+4]      ; tamanho
-    mov si, [bp+6]      ; resposta
-    mov di, [bp+8]      ; input
+    mov cl, [bp+4]      ; tamanho da menos das strings que serão comparadas
+    mov si, [bp+6]      ; string resposta
+    mov di, [bp+8]      ; string resposta do usuário
     .cmp_loop:
-        cmp cl, 0       ; se cl for 0 o resultado é 0, do contrário cl mantém seu valor
+        cmp cl, 0      
         je .end_equal
         mov bl, [di]    ; coloca o byte na posição armazenada de di em bl
         lodsb           ; coloca o valor na posição armazenada em si em al
@@ -251,10 +242,9 @@ strcmp:
         dec cl
         jmp .cmp_loop
     .end_equal:
-        ; precisa ver se depois da strin certa tem um 0
-        ; ou uma letra exempl 'brio',0(correto) ou 'brioo', 0(errado)
-        mov al, [di]
-        cmp al, 0
+        ; precisa ver se depois da string certa tem um 0
+        ; ou uma letra exemplo 'brio',0(correto) ou 'brioo', 0(errado)
+        cmp byte[di], 0
         jne .end_different 
         mov al, 1
         mov [flag], al
@@ -262,21 +252,19 @@ strcmp:
     .end_different:
         mov al, 0
         mov [flag], al
+    ;limpa a string da resposta do usuário
     .erase:
         mov cl, 15
         mov di, [bp+8]
         .erase_loop:
             cmp cl, 0
             je .end
-            mov al, 0
-            mov [di], al
+            mov byte[di], 0
             inc di
             dec cl
             jmp .erase_loop
     .end:
-        popa
-        mov sp, bp
-        pop bp
+        end
     ret
 
 tip_top:
@@ -287,11 +275,11 @@ tip_top:
     call clear
     add sp, 4           ; remove da pilha os parâmetros
 
-    push tip            ; parâmetro para print
+    push tip            ; parâmetro para print, é a strin "dica"
     call print
     add sp, 2
 
-    mov al, [bp+4]      ; passa o primeiro parâmetro desse procedimento(tip_top) em al
+    mov al, [bp+4]      ; passa o parâmetro 1 desse procedimento(número da dica atual) para al
     call putchar
 
     end
@@ -300,7 +288,7 @@ tip_top:
 set_option:
     begin
 
-    mov al, [bp+4]      ; coloca em al o primeiro parâmetro desse procedimento
+    mov al, [bp+4]      ; coloca em al o parâmetro 1 desse procedimento, o char que indica o número de opções
     cmp al, 1
     je .read_loop1
     .read_loop:
@@ -325,19 +313,19 @@ set_option:
         call print
         add sp, 2
 
-        push user_ans
+        push user_ans   ; string para armazenar a resposta do usuário
         push 15
         call input
         add sp, 4
 
         push user_ans
-        push word[bp+8]     ; string da resposta 
-        push word[bp+10]     ; tamanho da string da resposta
+        push word[bp+8]     ; string da resposta correta
+        push word[bp+10]    ; tamanho da string da certa
         call strcmp
         add sp, 6
 
         mov al, [flag]  ; o byte na posição armazenada em flag tem o resultado da comparação, passamos ele para al pra fazer o cmp
-        cmp al, 0       ; se for 0 str1 e str2 são diferentes
+        cmp al, 0       ; se for 0 string cerrta e a do usuário são diferentes
         je .wrong_ans
 
         mov al, [cont]
@@ -353,7 +341,7 @@ set_option:
         call print
         add sp, 2
         call getchar
-        next
+        next                ; vai pro fim do turno atual
         .wrong_ans:
             push 0x0a1c
             push 0x40
@@ -364,7 +352,7 @@ set_option:
             call print
             add sp, 2
             call getchar
-            next 
+            next            ; vai pro fim do turno atual
     .set_done:
         end
     ret
@@ -373,7 +361,7 @@ set_option:
 default_screen:
     begin
 
-    push word[bp+4]     ; coloca o 1º parâmetro dessa função(default_screen) na pilha para ser parâmetro de tip_top
+    push word[bp+4]     ; coloca o 1º parâmetro dessa função(número da dica atual) na pilha para ser parâmetro de tip_top
     call tip_top
     add sp, 2
 
@@ -384,9 +372,9 @@ default_screen:
     add sp, 2
 
 
-    ; imprime na tela a string cuja a posição inicial é word[bp+6]
+    ; imprime na tela a string do parametro 2, dica 2 do turno atual
 
-    push word[bp+6]     ; coloca na pilha o 2º par
+    push word[bp+6]
     call print
     add sp, 2
 
@@ -395,13 +383,11 @@ default_screen:
     add sp, 2
 
 
-    push word[bp+8]
+    push word[bp+8]     ; imprime na tela as opções que essa dica tem
     call print
     add sp, 2
 
-    popa                ; restaura os valores dos registradores, os que foram adicionados a pilha em pusha
-    mov sp, bp
-    pop bp              ; restaura o valor de bp antes do call default_screen
+    end
     ret
 
 pontuacao:
@@ -581,12 +567,11 @@ game:
         call clear
         add sp, 4
         
-        turn 03h, 1
-        turn 04h, 2
-        turn 09h, 3
-        .end_game:
-            call getchar
+        turn 3, 1     ; 3 tamanho da palavvra a ser adivinhada, 1 número do turno
+        turn 4, 2
+        turn 9, 3
 
+        call getchar
         call pontuacao
         jmp .loop
     ret
